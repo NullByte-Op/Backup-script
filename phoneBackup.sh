@@ -60,7 +60,7 @@ get_backup(){
 
     # Starting backup
 
-    rsync -ar -e 'ssh -p 1111' ${username}@${ip}:${src} $dst
+    rsync -ar -e "ssh -p $port" ${username}@${ip}:${src} $dst
 
 
     if [ $? -eq 0 ]; then
