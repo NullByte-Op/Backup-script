@@ -21,6 +21,13 @@ fi
 LOG_FILE="$LOG_DIR/backup_script.log"
 
 
+echo_terminal(){
+    
+    if $IS_TERMINAL;then
+        echo $1
+    fi
+
+}
 
 setup_logging(){
     mkdir -p "$LOG_DIR"
@@ -44,11 +51,11 @@ log(){
 
 banner(){
 
-    if $IS_TERMINAL ;then
-        echo "*******************************"
-        echo "This is a simple backup script."
-        echo "*******************************"
-    fi
+    
+    echo_termianl "*******************************"
+    echo_termianl "This is a simple backup script."
+    echo_termianl "*******************************"
+    
 }
 
 
@@ -62,15 +69,13 @@ get_backup(){
     username=$6
     port=$7
 
-    if $IS_TERMINAL;then
+    echo_terminal "********************************"
+    echo_terminal "[*] Starting Backup for $general_title [$title]"
+    echo_terminal "[*] IP:PORT -> $ip:$port"
+    echo_terminal "[*] User name -> $username"
+    echo_terminal "[*] src-> $src"
+    echo_terminal "[*] dst-> $dst"
 
-        echo "********************************"
-        echo "[*] Starting Backup for $general_title [$title]"
-        echo "[*] IP:PORT -> $ip:$port"
-        echo "[*] User name -> $username"
-        echo "[*] src-> $src"
-        echo "[*] dst-> $dst"
-    fi
     # Starting backup
 
     rsync -ar -e "ssh -p $port" ${username}@${ip}:${src} $dst
@@ -108,9 +113,9 @@ process_configs(){
     
     local config_file=$1
 
-    if $IS_TERMINAL;then
-        echo "[*] Proccessing [$1]"
-    fi
+
+    echo_terminal "[*] Proccessing [$1]"
+
     general_title=$(jq -r '.title' $config_file )
     titles=$(jq -r 'to_entries[] | select(.value | type == "object") | .key' $config_file)
     ip=$(jq -r '.ip' $config_file)
@@ -136,17 +141,16 @@ read_config(){
     local json_files=( /home/gameover/bin/scripts/backup_script/*.json )
     
     if [ ${#json_files[@]} -eq 0 ];then
-        
-        if $IS_TERMINAL;then
-            echo "[0] Json file found."
-            shopt -u nullglob
-            exit 1
-        fi
+    
+        echo_terminal "[0] Json file found."
+        shopt -u nullglob
+        exit 1
+
 
     else
-        if $IS_TERMINAL;then
-            echo "[*] Found ${#json_files[@]} file"
-        fi
+        
+        echo_terminal "[*] Found ${#json_files[@]} file"
+        
     fi
 
     for name in ${json_files[@]};do
