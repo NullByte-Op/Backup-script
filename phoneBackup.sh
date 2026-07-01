@@ -50,9 +50,9 @@ lock_script(){
 
 setup_logging(){
     mkdir -p "$LOG_DIR"
-    touch "$LOG_FILE"
+    
 
-    if [ $? -ne 0 ];then
+    if ! touch "$LOG_FILE";then
         echo "ERROR : Cannot create log directory at $LOG_DIR"
         exit 1
     fi
@@ -144,10 +144,7 @@ get_backup(){
 
     # Starting backup
 
-    rsync -ar -e "ssh -p $port" ${username}@${ip}:${src} $dst
-
-
-    if [ $? -eq 0 ]; then
+    if rsync -a --partial -e "ssh -p $port" "${username}@${ip}:${src}" "$dst"; then
         log "INFO" "Backup completed successfully for [$title]"
         return 0
     else
@@ -163,9 +160,9 @@ check_host(){
     local ip=$1
     local port=$2
 
-    nc -w 5 -z $ip $port 2>/dev/null
+   
 
-    if [ $? != 0 ];then
+    if !  nc -w 5 -z "$ip" "$port" 2>/dev/null;then
         log "ERROR" "Connection refused to $ip:$port"
         exit 1
     else
@@ -179,9 +176,9 @@ validate_yaml(){
     local config_file=$1
 
     # Read all config file 
-    yq "." $config_file > /dev/null 2>&1
+    
 
-    if [ $? -ne 0 ];then
+    if ! yq "." "$config_file" > /dev/null 2>&1;then
         log "ERROR" "Invalid YAML syntax in file : $config_file"
         return 1
     else
